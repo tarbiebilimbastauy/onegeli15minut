@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="kk" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Өнегелі 15 минут - Бейнетека және AI Чат-бот</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-full flex flex-col">
+
+    <header class="bg-emerald-700 text-white shadow-md py-4 px-6 flex flex-wrap justify-between items-center gap-4">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold flex items-center gap-2">
+                <span>📚</span> «Өнегелі 15 минут» Бейнетекасы мен AI Чат-боты
+            </h1>
+            <p id="headerSubtitle" class="text-xs sm:text-sm text-emerald-100">Бірыңғай тәрбие мен құндылықтар платформасы (Қазақ / Русский)</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button id="langToggleBtn" onclick="toggleLanguage()" class="bg-emerald-800 hover:bg-emerald-900 px-3.5 py-2 rounded-lg text-sm font-medium transition border border-emerald-600 shadow-sm flex items-center gap-2">
+                <span>🌐</span> <span id="langBtnText">Русский / Қазақша</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col lg:flex-row overflow-hidden p-4 gap-4 max-w-[1700px] w-full mx-auto">
+        
+        <!-- Left Panel: Video Library & Tasks (50 Lessons) -->
+        <section class="w-full lg:w-7/12 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-4 bg-slate-100 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <h2 id="libraryTitle" class="font-bold text-lg text-slate-700 flex items-center gap-2">
+                    <span>🎬</span> Бейнетека және Тапсырмалар (50 сабақ)
+                </h2>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="searchInput" oninput="filterVideos()" placeholder="Тақырып немесе құндылық бойынша іздеу..." class="px-3 py-2 text-sm rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 w-full sm:w-64">
+                </div>
+            </div>
+
+            <!-- Video List Container -->
+            <div id="videoListContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+                <!-- Javascript will populate this -->
+            </div>
+        </section>
+
+        <!-- Right Panel: AI Chatbot Assistant -->
+        <section class="w-full lg:w-5/12 flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-4 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+                <h2 id="chatTitle" class="font-bold text-lg text-emerald-800 flex items-center gap-2">
+                    <span>🤖</span> AI Көмекші – Сұрақ-жауәп және Тапсырма
+                </h2>
+                <span class="text-xs bg-emerald-200 text-emerald-800 px-2 py-1 rounded-full font-semibold">Gemini 3 Flash</span>
+            </div>
+
+            <!-- Quick Suggestions Pills -->
+            <div class="px-4 py-2.5 bg-slate-50 border-b border-slate-200 flex gap-2 overflow-x-auto text-xs whitespace-nowrap">
+                <button onclick="sendQuickPrompt('Бұл жобаның негізгі мақсаты мен тәрбиелік мәні қандай?')" class="bg-white hover:bg-emerald-50 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition shadow-xs">💡 Жоба мақсаты</button>
+                <button onclick="sendQuickPrompt('Бастауыш сыныптарға арналған ұлттық құндылықтар сабақтарын ата')" class="bg-white hover:bg-emerald-50 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition shadow-xs">📚 Бастауыш сыныптар</button>
+                <button onclick="sendQuickPrompt('Домбыра және тоғызқұмалақ сабақтарының тәрбиелік маңызы')" class="bg-white hover:bg-emerald-50 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition shadow-xs">🎵 Ұлттық өнер</button>
+                <button onclick="sendQuickPrompt('Оқушыларға үйге арналған шығармашылық тапсырма мысалын бер')" class="bg-white hover:bg-emerald-50 text-slate-700 px-3 py-1.5 rounded-full border border-slate-200 transition shadow-xs">📝 Тапсырма мысалы</button>
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50">
+                <div class="flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0">AI</div>
+                    <div id="welcomeMsg" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 text-sm max-w-[88%] text-slate-700 leading-relaxed">
+                        Сәлем! Мен «Өнегелі 15 минут» бірыңғай тәрбие жобасының AI көмекшісімін. Маған кез келген бейнесабақ бойынша тапсырма, сұрақ немесе тәрбиелік құндылықтар туралы сұрақ қоя аласыз. Екі тілде көмектесемін!<br><br>
+                        Привет! Я AI-ассистент проекта «Өнегелі 15 минут». Вы можете запросить задания, вопросы для обсуждения или задать любые вопросы по 50 видеоурокам. Готов помочь на двух языках!
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="p-3.5 bg-white border-t border-slate-200 flex items-center gap-2">
+                <input type="text" id="chatInput" onkeypress="handleKeyPress(event)" placeholder="Сұрақ қою немесе тапсырма сұрау... / Задать вопрос..." class="flex-1 px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+                <button onclick="sendMessage()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-medium text-sm transition shadow-sm flex items-center gap-1.5 shrink-0">
+                    <span id="sendBtnText">Жіберу</span> ➔
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Official Data Store for 50 Video Lessons with Tasks & Questions
+        const videoData = [
+            { id: 1, titleKK: "Домбыра үйрену – 1-сабақ: домбыраның құрылысы және дұрыс отыру", titleRU: "Обучение домбре – Урок 1: устройство домбры и правильная посадка", grade: "1–11", valueKK: "Ұлттық мұра, өнер", valueRU: "Национальное наследие, искусство", yt: "Домбыра үйрену 1 сабақ құрылысы отыру" },
+            { id: 2, titleKK: "Домбыра үйрену – 1 сабақ: домбыра құлағын дұрыстау, жаттығу", titleRU: "Обучение домбре – Урок 1: настройка домбры, упражнение", grade: "3–11", valueKK: "Ұлттық өнер, еңбек", valueRU: "Национальное искусство, труд", yt: "Домбыра құлағын келтіру жаттығу" },
+            { id: 3, titleKK: "Домбыра үйрену. 1-ші сабақ", titleRU: "Обучение игре на домбре. Урок 1", grade: "3–11", valueKK: "Ұлттық мәдениет", valueRU: "Национальная культура", yt: "Домбыра үйрену 1 сабақ" },
+            { id: 4, titleKK: "Тоғызқұмалақ курсы – 1 сабақ", titleRU: "Курс тогызкумалак – Урок 1", grade: "3–11", valueKK: "Ұлттық ойын, ойлау", valueRU: "Национальная игра, мышление", yt: "Тоғызқұмалақ курсы 1 сабақ" },
+            { id: 5, titleKK: "Тоғызқұмалақ ойынын үйрену – 1-сабақ", titleRU: "Обучение игре тогызкумалак – Урок 1", grade: "3–7", valueKK: "Ұлттық мұра, логика", valueRU: "Национальное наследие, логика", yt: "Тоғызқұмалақ ойынын үйрену 1 сабақ" },
+            { id: 6, titleKK: "Бала тәрбиесіне қатысты қазақтың салт-дәстүрлері", titleRU: "Казахские традиции, связанные с воспитанием детей", grade: "1–11", valueKK: "Отбасы, салт-дәстүр", valueRU: "Семья, традиции", yt: "Бала тәрбиесіне қатысты қазақтың салт дәстүрлері" },
+            { id: 7, titleKK: "Қазақтың «Сырға салу» дәстүрі қалай өтеді?", titleRU: "Как проходит казахская традиция «Сырға салу»?", grade: "5–11", valueKK: "Ұлттық дәстүр, отбасы", valueRU: "Национальная традиция, семья", yt: "Қазақтың Сырға салу дәстүрі қалай өтеді" },
+            { id: 8, titleKK: "«Заң және тәртіп» – балабақша балаларына арналған мультфильм", titleRU: "«Закон и порядок» – мультфильм для детсадовцев", grade: "1–4", valueKK: "Заң, тәртіп", valueRU: "Закон, порядок", yt: "Заң және тәртіп балабақша балаларына арналған мультфильм" },
+            { id: 9, titleKK: "«Заң және тәртіп: балалардың көзқарасымен»", titleRU: "«Закон и порядок: глазами детей»", grade: "5–11", valueKK: "Құқықтық сауаттылық, жауапкершілік", valueRU: "Правовая грамотность, ответственность", yt: "Заң және тәртіп балалардың көзқарасымен" },
+            { id: 10, titleKK: "Домбыраның құрылысы", titleRU: "Устройство домбры", grade: "1–6", valueKK: "Ұлттық аспап", valueRU: "Национальный инструмент", yt: "Домбыраның құрылысы" },
+            { id: 11, titleKK: "Домбырада дұрыс отыру және аспапты ұстау", titleRU: "Правильная посадка и удержание домбры", grade: "1–6", valueKK: "Ұқыптылық, өнер", valueRU: "Аккуратность, искусство", yt: "Домбырада дұрыс отыру және аспапты ұстау" },
+            { id: 12, titleKK: "Домбыра қағыстарын үйрену", titleRU: "Изучение домбровых приемов (кагыс)", grade: "3–11", valueKK: "Еңбек, табандылық", valueRU: "Труд, упорство", yt: "Домбыра қағыстарын үйрену" },
+            { id: 13, titleKK: "Тоғызқұмалақтың негізгі ережелері", titleRU: "Основные правила тогызкумалака", grade: "3–11", valueKK: "Сабыр, логика", valueRU: "Терпение, логика", yt: "Тоғызқұмалақтың негізгі ережелері" },
+            { id: 14, titleKK: "Тоғызқұмалақ – ұлттық зияткерлік ойын", titleRU: "Тогызкумалак – национальная интеллектуальная игра", grade: "3–11", valueKK: "Зияткерлік даму", valueRU: "Интеллектуальное развитие", yt: "Тоғызқұмалақ ұлттық зияткерлік ойын" },
+            { id: 15, titleKK: "Қазақ салт-дәстүрлері – бала тәрбиесі", titleRU: "Казахские традиции – воспитание детей", grade: "1–11", valueKK: "Ұлттық тәрбие", valueRU: "Национальное воспитание", yt: "Қазақ салт дәстүрлері бала тәрбиесі" },
+            { id: 16, titleKK: "Салт-дәстүр – ұрпақ тәрбиесі", titleRU: "Традиции – воспитание поколения", grade: "5–11", valueKK: "Ұлттық құндылық", valueRU: "Национальная ценность", yt: "Салт дәстүр ұрпақ тәрбиесі" },
+            { id: 17, titleKK: "Сырға салу дәстүрі", titleRU: "Традиция Сырға салу", grade: "5–11", valueKK: "Отбасы, дәстүр", valueRU: "Семья, традиции", yt: "Сырға салу дәстүрі" },
+            { id: 18, titleKK: "Қазақ халқының дәстүрлері", titleRU: "Традиции казахского народа", grade: "3–11", valueKK: "Дәстүрді сақтау", valueRU: "Сохранение традиций", yt: "Қазақ халқының дәстүрлері" },
+            { id: 19, titleKK: "Домбыра – қазақтың қасиетті аспабы", titleRU: "Домбра – священный инструмент казахов", grade: "1–11", valueKK: "Ұлттық сана", valueRU: "Национальное самосознание", yt: "Домбыра қазақтың қасиетті аспабы" },
+            { id: 20, titleKK: "Күй өнеріне алғашқы қадам", titleRU: "Первый шаг в искусство күй", grade: "3–11", valueKK: "Өнер, еңбек", valueRU: "Искусство, труд", yt: "Күй өнеріне алғашқы қадам" },
+            { id: 21, titleKK: "Қазақтың ою-өрнектері және олардың мағынасы", titleRU: "Казахские орнаменты и их значение", grade: "1–11", valueKK: "Ұлттық мұра", valueRU: "Национальное наследие", yt: "Қазақтың ою өрнектері және олардың мағынасы" },
+            { id: 22, titleKK: "Ою-өрнек салуды үйрену", titleRU: "Обучение рисованию орнаментов", grade: "1–6", valueKK: "Еңбек, шығармашылық", valueRU: "Труд, творчество", yt: "Ою өрнек салуды үйрену" },
+            { id: 23, titleKK: "Қазақтың ұлттық киімдері", titleRU: "Казахская национальная одежда", grade: "1–6", valueKK: "Ұлттық мәдениет", valueRU: "Национальная культура", yt: "Қазақтың ұлттық киімдері" },
+            { id: 24, titleKK: "Қазақтың ұлттық ойындары", titleRU: "Казахские национальные игры", grade: "1–6", valueKK: "Дәстүр, бірлік", valueRU: "Традиция, единство", yt: "Қазақтың ұлттық ойындары" },
+            { id: 25, titleKK: "Асық ойыны – ұлттық мұра", titleRU: "Игра в асыки – национальное наследие", grade: "1–7", valueKK: "Ұлттық спорт", valueRU: "Национальный спорт", yt: "Асық ойыны ұлттық мұра" },
+            { id: 26, titleKK: "Арқан тарту ойыны", titleRU: "Перетягивание каната (Аркан тарту)", grade: "1–7", valueKK: "Бірлік, достық", valueRU: "Единство, дружба", yt: "Арқан тарту ойыны" },
+            { id: 27, titleKK: "Бес асық ойыны", titleRU: "Игра Бес асық", grade: "3–7", valueKK: "Ұлттық ойын", valueRU: "Национальная игра", yt: "Бес асық ойыны ережесі" },
+            { id: 28, titleKK: "Қазақтың ұлттық тағамдары", titleRU: "Казахская национальная кухня", grade: "1–6", valueKK: "Дәстүр, отбасы", valueRU: "Традиции, семья", yt: "Қазақтың ұлттық тағамдары" },
+            { id: 29, titleKK: "Шаңырақ – отбасы символы", titleRU: "Шанырак – символ семьи", grade: "1–11", valueKK: "Отбасы", valueRU: "Семья", yt: "Шаңырақ отбасы символы" },
+            { id: 30, titleKK: "Отбасы – тәрбие бастауы", titleRU: "Семья – начало воспитания", grade: "1–11", valueKK: "Отбасы құндылығы", valueRU: "Семейная ценность", yt: "Отбасы тәрбие бастауы" },
+            { id: 31, titleKK: "Ата-ананы құрметтеу", titleRU: "Уважение к родителям", grade: "1–11", valueKK: "Құрмет", valueRU: "Уважение", yt: "Ата-ананы құрметтеу" },
+            { id: 32, titleKK: "Үлкенге құрмет, кішіге ізет", titleRU: "Уважение к старшим, забота о младших", grade: "1–9", valueKK: "Сыйластық", valueRU: "Уважение, этикет", yt: "Үлкенге құрмет кішіге ізет" },
+            { id: 33, titleKK: "Адамгершілік дегеніміз не?", titleRU: "Что такое человечность?", grade: "1–9", valueKK: "Адамгершілік", valueRU: "Нравственность", yt: "Адамгершілік дегеніміз не" },
+            { id: 34, titleKK: "Мейірімділік пен қайырымдылық", titleRU: "Доброта и милосердие", grade: "1–7", valueKK: "Мейірімділік", valueRU: "Доброта", yt: "Мейірімділік пен қайырымдылық" },
+            { id: 35, titleKK: "Адалдық туралы мультфильм", titleRU: "Мультфильм о честности", grade: "1–6", valueKK: "Адалдық", valueRU: "Честность", yt: "Адалдық туралы мультфильм қазақша" },
+            { id: 36, titleKK: "Еңбек – бәрін жеңбек", titleRU: "Труд побеждает все", grade: "1–7", valueKK: "Еңбекқорлық", valueRU: "Трудолюбие", yt: "Balapan TV Еңбек бәрін жеңбек" },
+            { id: 37, titleKK: "Адал еңбек – бәрін жеңбек", titleRU: "Честный труд побеждает все", grade: "5–11", valueKK: "Адал еңбек", valueRU: "Честный труд", yt: "Адал еңбек бәрін жеңбек" },
+            { id: 38, titleKK: "Таза Қазақстан – табиғатты қорғау", titleRU: "Чистый Казахстан – защита природы", grade: "1–11", valueKK: "Экологиялық мәдениет", valueRU: "Экологическая культура", yt: "Таза Қазақстан табиғатты қорғау" },
+            { id: 39, titleKK: "Қазақстан тарихы: Алтын адам", titleRU: "История Казахстана: Золотой человек", grade: "4–11", valueKK: "Тарих, патриотизм", valueRU: "История, патриотизм", yt: "Алтын адам феномені қазақ тарихының негізі" },
+            { id: 40, titleKK: "Қазақ хандығының құрылуы", titleRU: "Образование Казахского ханства", grade: "5–11", valueKK: "Тарих, елдік", valueRU: "История, государственность", yt: "Қазақ хандығының құрылуы Керей мен Жәнібек" },
+            { id: 41, titleKK: "Абай Құнанбайұлы туралы", titleRU: "Об Абае Кунанбаеве", grade: "5–11", valueKK: "Білім, адамгершілік", valueRU: "Знания, мораль", yt: "Абай Құнанбайұлы өмірі мен шығармашылығы" },
+            { id: 42, titleKK: "Ахмет Байтұрсынұлы – Ұлт ұстазы", titleRU: "Ахмет Байтурсынулы – Учитель нации", grade: "5–11", valueKK: "Білім, тіл", valueRU: "Знания, язык", yt: "Ахмет Байтұрсынұлы Ұлт ұстазы" },
+            { id: 43, titleKK: "Әлихан Бөкейхан туралы", titleRU: "Об Алихане Букейханове", grade: "7–11", valueKK: "Отаншылдық", valueRU: "Патриотизм", yt: "Әлихан Бөкейхан өмірі мен қызметі" },
+            { id: 44, titleKK: "Қазақ батырлары", titleRU: "Казахские батыры", grade: "3–11", valueKK: "Ерлік, отаншылдық", valueRU: "Героизм, патриотизм", yt: "Қазақ Батырлары тарихы" },
+            { id: 45, titleKK: "Туған жер – алтын бесігім", titleRU: "Родная земля – золотая колыбель", grade: "1–11", valueKK: "Патриотизм", valueRU: "Патриотизм", yt: "Туған жер алтын бесігім" },
+            { id: 46, titleKK: "Мемлекеттік рәміздер", titleRU: "Государственные символы", grade: "1–11", valueKK: "Отаншылдық", valueRU: "Патриотизм", yt: "Қазақстан Республикасының Мемлекеттік рәміздері" },
+            { id: 47, titleKK: "Баланың құқықтары мен міндеттері", titleRU: "Права и обязанности ребенка", grade: "5–11", valueKK: "Заң және тәртіп", valueRU: "Закон и порядок", yt: "Баланың құқықтары мен міндеттері" },
+            { id: 48, titleKK: "Жолда жүру ережелері", titleRU: "Правила дорожного движения", grade: "1–6", valueKK: "Қауіпсіздік, тәртіп", valueRU: "Безопасность, порядок", yt: "Жолда жүру ережелері балаларға" },
+            { id: 49, titleKK: "Киберқауіпсіздік және интернет мәдениеті", titleRU: "Кибербезопасность и интернет-культура", grade: "5–11", valueKK: "Жауапкершілік", valueRU: "Ответственность", yt: "Киберқауіпсіздік және интернет мәдениеті" },
+            { id: 50, titleKK: "Достық және өзара құрмет", titleRU: "Дружба и взаимное уважение", grade: "1–9", valueKK: "Достық, сыйластық", valueRU: "Дружба, уважение", yt: "Достық және өзара құрмет тәрбие сағаты" }
+        ];
+
+        let currentLang = 'kk'; // 'kk' or 'ru'
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'kk' ? 'ru' : 'kk';
+            renderVideos();
+            updateUIStrings();
+        }
+
+        function updateUIStrings() {
+            const headerSubtitle = document.getElementById('headerSubtitle');
+            const libraryTitle = document.getElementById('libraryTitle');
+            const chatTitle = document.getElementById('chatTitle');
+            const searchInput = document.getElementById('searchInput');
+            const chatInput = document.getElementById('chatInput');
+            const welcomeMsg = document.getElementById('welcomeMsg');
+            const sendBtnText = document.getElementById('sendBtnText');
+            const langBtnText = document.getElementById('langBtnText');
+
+            if (currentLang === 'kk') {
+                headerSubtitle.innerText = "Бірыңғай тәрбие мен құндылықтар платформасы (Қазақ / Русский)";
+                libraryTitle.innerHTML = `<span>🎬</span> Бейнетека және Тапсырмалар (50 сабақ)`;
+                chatTitle.innerHTML = `<span>🤖</span> AI Көмекші – Сұрақ-жауап және Тапсырма`;
+                searchInput.placeholder = "Тақырып немесе құндылық бойынша іздеу...";
+                chatInput.placeholder = "Сұрақ қою немесе тапсырма сұрау...";
+                sendBtnText.innerText = "Жіберу";
+                langBtnText.innerText = "Русский / Қазақша";
+                welcomeMsg.innerHTML = `Сәлем! «Өнегелі 15 минут» бірыңғай тәрбие жобасының AI көмекшісімін. Маған кез келген бейнесабақ бойынша тапсырма, сұрақ немесе тәрбиелік құндылықтар туралы сұрақ қоя аласыз. Екі тілде көмектесемін!<br><br>Привет! Я AI-ассистент проекта «Өнегелі 15 минут». Вы можете запросить задания, вопросы для обсуждения или задать любые вопросы по 50 видеоурокам. Готов помочь на двух языках!`;
+            } else {
+                headerSubtitle.innerText = "Единая платформа воспитания и ценностей (Русский / Қазақша)";
+                libraryTitle.innerHTML = `<span>🎬</span> Видеотека и Задания (50 уроков)`;
+                chatTitle.innerHTML = `<span>🤖</span> AI Ассистент – Вопросы и Задания`;
+                searchInput.placeholder = "Поиск по теме или ценности...";
+                chatInput.placeholder = "Задать вопрос или запросить задание...";
+                sendBtnText.innerText = "Отправить";
+                langBtnText.innerText = "Қазақша / Русский";
+                welcomeMsg.innerHTML = `Привет! Я AI-ассистент проекта «Өнегелі 15 минут». Вы можете запросить задания, вопросы для обсуждения или задать любые вопросы по 50 видеоурокам. Готов помочь на двух языках!<br><br>Сәлем! «Өнегелі 15 минут» бірыңғай тәрбие жобасының AI көмекшісімін. Маған кез келген бейнесабақ бойынша тапсырма, сұрақ немесе тәрбиелік құндылықтар туралы сұрақ қоя аласыз. Екі тілде көмектесемін!`;
+            }
+        }
+
+        function renderVideos(filteredList = videoData) {
+            const container = document.getElementById('videoListContainer');
+            container.innerHTML = '';
+
+            filteredList.forEach(item => {
+                const title = currentLang === 'kk' ? item.titleKK : item.titleRU;
+                const value = currentLang === 'kk' ? item.valueKK : item.valueRU;
+                const gradeLabel = currentLang === 'kk' ? 'Сынып:' : 'Класс:';
+                const valueLabel = currentLang === 'kk' ? 'Құндылық:' : 'Ценность:';
+                const taskBtnText = currentLang === 'kk' ? '📝 Тапсырма алу' : '📝 Получить задание';
+                const askBtnText = currentLang === 'kk' ? '💬 Сұрақ-жауәп' : '💬 Вопросы';
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-xl border border-slate-200 hover:border-emerald-500 shadow-sm transition flex flex-col gap-2";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-md">№${item.id}</span>
+                        <span class="text-xs text-slate-500 font-medium bg-slate-100 px-2 py-0.5 rounded">${gradeLabel} ${item.grade}</span>
+                    </div>
+                    <h3 class="font-semibold text-slate-800 text-sm sm:text-base">${title}</h3>
+                    <div class="text-xs text-slate-600">
+                        <span class="font-medium">${valueLabel}</span> <span class="text-emerald-700">${value}</span>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-100">
+                        <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(item.yt)}" target="_blank" class="text-xs text-red-600 hover:underline font-medium flex items-center gap-1">
+                            ▶️ YouTube
+                        </a>
+                        <div class="flex gap-2">
+                            <button onclick="askAIBasedOnVideo(${item.id}, 'task')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition">${taskBtnText}</button>
+                            <button onclick="askAIBasedOnVideo(${item.id}, 'questions')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-2.5 py-1.5 rounded-lg font-medium transition">${askBtnText}</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterVideos() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = videoData.filter(item => 
+                item.titleKK.toLowerCase().includes(query) || 
+                item.titleRU.toLowerCase().includes(query) ||
+                item.valueKK.toLowerCase().includes(query) ||
+                item.valueRU.toLowerCase().includes(query) ||
+                item.id.toString() === query
+            );
+            renderVideos(filtered);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function askAIBasedOnVideo(id, mode) {
+            const item = videoData.find(v => v.id === id);
+            if (!item) return;
+
+            let prompt = "";
+            if (currentLang === 'kk') {
+                if (mode === 'task') {
+                    prompt = `№${item.id} сабақ: "${item.titleKK}" (${item.grade} сынып). Осы тәрбие сағатына арналған оқушыларға қызықты шығармашылық немесе практикалық тапсырма құрастырып беріңіз. Дәриптелетін құндылық: ${item.valueKK}.`;
+                } else {
+                    prompt = `№${item.id} сабақ: "${item.titleKK}" (${item.grade} сынып). Осы тақырып бойынша сыныпта талқылауға арналған 3 маңызды сұрақ пен жауап дайындап беріңіз.`;
+                }
+            } else {
+                if (mode === 'task') {
+                    prompt = `Урок №${item.id}: "${item.titleRU}" (${item.grade} класс). Составьте интересное творческое или практическое задание для учеников. Ценность: ${item.valueRU}.`;
+                } else {
+                    prompt = `Урок №${item.id}: "${item.titleRU}" (${item.grade} класс). Подготовьте 3 важных вопроса для обсуждения в классе и ответы.`;
+                }
+            }
+
+            document.getElementById('chatInput').value = prompt;
+            sendMessage();
+        }
+
+        function sendQuickPrompt(promptText) {
+            document.getElementById('chatInput').value = promptText;
+            sendMessage();
+        }
+
+        async function sendMessage() {
+            const inputEl = document.getElementById('chatInput');
+            const messageText = inputEl.value.trim();
+            if (!messageText) return;
+
+            appendMessage(messageText, 'user');
+            inputEl.value = '';
+
+            const loadingId = appendLoadingMessage();
+
+            try {
+                // System instruction for Gemini AI in the context of "Өнегелі 15 минут"
+                const systemPrompt = `You are an expert pedagogical AI assistant for the Kazakhstani national values and education project "Өнегелі 15 минут" (15 Minutes of Morality). You help teachers and students by generating engaging practical tasks, discussion questions, and answering queries regarding the 50 official educational video lessons, moral values, national traditions, and citizenship. Respond in the language requested by the user (Kazakh or Russian) with professional formatting (bullet points, clear sections).`;
+                
+                const payload = {
+                    contents: [{ parts: [{ text: messageText }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] }
+                };
+
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=`;
+                
+                let response = null;
+                let data = null;
+                
+                // Exponential backoff retry loop
+                for (let attempt = 0; attempt < 3; attempt++) {
+                    try {
+                        response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) {
+                            data = await response.json();
+                            break;
+                        }
+                    } catch (e) {
+                        await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 1000));
+                    }
+                }
+
+                removeLoadingMessage(loadingId);
+
+                if (data && data.candidates && data.candidates[0].content.parts[0].text) {
+                    const aiReply = data.candidates[0].content.parts[0].text;
+                    appendMessage(aiReply, 'ai');
+                } else {
+                    fallbackResponse(messageText);
+                }
+
+            } catch (error) {
+                removeLoadingMessage(loadingId);
+                fallbackResponse(messageText);
+            }
+        }
+
+        function fallbackResponse(userQuery) {
+            let reply = "";
+            if (currentLang === 'kk') {
+                reply = `«Өнегелі 15 минут» жобасы бойынша сұрағыңыз қабылданды: "${userQuery}". Бұл платформа оқушыларға ұлттық тәрбие, құндылықтар, еңбекқорлық және саналы азаматтық қасиеттерді сіңіруге арналған. Тағы да сұрақ қоя аласыз!`;
+            } else {
+                reply = `Ваш запрос по проекту «Өнегелі 15 минут» принят: "${userQuery}". Платформа направлена на воспитание учащихся на основе национальных ценностей, традиций и патриотизма. Вы можете задать уточняющие вопросы!`;
+            }
+            appendMessage(reply, 'ai');
+        }
+
+        function appendMessage(text, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            
+            if (sender === 'user') {
+                msgDiv.className = "flex items-start justify-end gap-3";
+                msgDiv.innerHTML = `
+                    <div class="bg-emerald-600 text-white p-3.5 rounded-2xl shadow-sm text-sm max-w-[85%] leading-relaxed">${escapeHtml(text)}</div>
+                    <div class="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center font-bold text-sm shrink-0">Сен</div>
+                `;
+            } else {
+                msgDiv.className = "flex items-start gap-3";
+                msgDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0">AI</div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 text-sm max-w-[85%] text-slate-700 leading-relaxed">${formatMarkdown(text)}</div>
+                `;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        let loadingCounter = 0;
+        function appendLoadingMessage() {
+            const id = 'loading-' + (++loadingCounter);
+            const chatMessages = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.id = id;
+            msgDiv.className = "flex items-start gap-3";
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shrink-0 animate-pulse">AI</div>
+                <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 text-sm text-slate-500 italic">Жауап дайындалуда... / Генерация ответа...</div>
+            `;
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return id;
+        }
+
+        function removeLoadingMessage(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        function formatMarkdown(text) {
+            return escapeHtml(text).replace(/\n/g, '<br>');
+        }
+
+        // Initialize on window load
+        window.onload = function() {
+            renderVideos();
+        };
+    </script>
+
+</body>
+</html>
